@@ -8,7 +8,6 @@ import com.mindex.challenge.dao.CompensationRepository;
 import com.mindex.challenge.dao.EmployeeRepository;
 import com.mindex.challenge.data.Compensation;
 import com.mindex.challenge.data.Employee;
-import com.mindex.challenge.data.EmployeeCompensationDto;
 import com.mindex.challenge.service.CompensationService;
 import com.mindex.challenge.service.EmployeeService;
 import org.junit.Before;
@@ -18,11 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.time.*;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -31,6 +32,7 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CompensationServiceImplTest {
 
+    public static final String AMERICA_NEW_YORK = "America/New_York";
     @Autowired
     CompensationService compensationService;
     private String compensationUrl;
@@ -70,7 +72,7 @@ public class CompensationServiceImplTest {
 
         //set up test data
         Employee testEmployee = employeeService.create(setupTestEmployee());
-        ZoneId estZoneId = ZoneId.of("America/New_York");
+        ZoneId estZoneId = ZoneId.of(AMERICA_NEW_YORK);
         LocalDate nowInEst = LocalDate.now(estZoneId);
 
         Compensation testCompensation = new Compensation();
@@ -78,7 +80,7 @@ public class CompensationServiceImplTest {
         testCompensation.setSalary(BigDecimal.valueOf(7500.25));
         testCompensation.setEffectiveDate(nowInEst);
 
-        ZoneId sourceTimeZone = ZoneId.of("America/New_York");
+        ZoneId sourceTimeZone = ZoneId.of(AMERICA_NEW_YORK);
         ZonedDateTime sourceDateTime = nowInEst.atStartOfDay(sourceTimeZone);
 
         Instant utcInstant = sourceDateTime.withZoneSameInstant(ZoneOffset.UTC).toInstant();
@@ -100,19 +102,22 @@ public class CompensationServiceImplTest {
 
         // Read or Query assertions
 
-        EmployeeCompensationDto readEmployeeCompensations = restTemplate.getForEntity(
-                compensationsByEmpIdUrl, EmployeeCompensationDto.class, testEmployee.getEmployeeId()).getBody();
+        List<Compensation> readEmployeeCompensations = restTemplate.exchange(
+                compensationsByEmpIdUrl, HttpMethod.GET, null,
+                new ParameterizedTypeReference<List<Compensation>>() {},
+                testEmployee.getEmployeeId()).getBody();
         assert readEmployeeCompensations != null;
-        Compensation compensationToTest= readEmployeeCompensations.getCompensationList().get(0);
-        assertNotNull(readEmployeeCompensations.getCompensationList());
-        assertEmployeeIdEquivalence(readEmployeeCompensations.getCompensationList().get(0).getEmployeeId(), testEmployee.getEmployeeId());
-        assertEquals(createdCompensation.getEmployeeId(), readEmployeeCompensations.getCompensationList().get(0).getEmployeeId());
+        Compensation compensationToTest= readEmployeeCompensations.get(0);
+        assertNotNull(readEmployeeCompensations);
+        assertEmployeeIdEquivalence(readEmployeeCompensations.get(0).getEmployeeId(), testEmployee.getEmployeeId());
+        assertEquals(createdCompensation.getEmployeeId(), readEmployeeCompensations.get(0).getEmployeeId());
         assertCompensationEquivalence(createdCompensation, compensationToTest);
+
         //assert that effective date returns in the client timezone
         assertEquals(createdCompensation.getEffectiveDate(), compensationToTest.getEffectiveDate());
 
         // Basic Update assertions
-        readEmployeeCompensations.getCompensationList().get(0).setSalary(BigDecimal.valueOf(8900));
+        readEmployeeCompensations.get(0).setSalary(BigDecimal.valueOf(8900));
 
         HttpHeaders headers2 = new HttpHeaders();
         HttpEntity<Compensation> entity2 = new HttpEntity<>(compensationToTest, headers2);
@@ -146,6 +151,7 @@ public class CompensationServiceImplTest {
         testCompensation1.setEffectiveDate(LocalDate.of(1990, 10, 11));
         Compensation createdCompensation1 =
                 restTemplate.postForEntity(compensationUrl, testCompensation1, Compensation.class).getBody();
+
         assertNotNull(createdCompensation1);
 
         Compensation testCompensation2 = new Compensation();
@@ -158,13 +164,15 @@ public class CompensationServiceImplTest {
         assertNotNull(createdCompensation2);
 
         // Employee id check
-        EmployeeCompensationDto readEmployeeCompensations = restTemplate.getForEntity(
-                compensationsByEmpIdUrl, EmployeeCompensationDto.class, createdEmployee.getEmployeeId()).getBody();
+        List<Compensation> readEmployeeCompensations = restTemplate.exchange(
+                compensationsByEmpIdUrl, HttpMethod.GET, null,
+                new ParameterizedTypeReference<List<Compensation>>() {},
+                testEmployee.getEmployeeId()).getBody();
         assertNotNull(readEmployeeCompensations);
-        assertEmployeeIdEquivalence(readEmployeeCompensations.getCompensationList().get(0).getEmployeeId(), testEmployee.getEmployeeId());
+        assertEmployeeIdEquivalence(readEmployeeCompensations.get(0).getEmployeeId(), testEmployee.getEmployeeId());
 
         // Compensation records check
-        for (Compensation compensation : readEmployeeCompensations.getCompensationList()) {
+        for (Compensation compensation : readEmployeeCompensations) {
 
             if (compensation.getId().equals(createdCompensation1.getId())) {
                 assertCompensationEquivalence(compensation, testCompensation1);

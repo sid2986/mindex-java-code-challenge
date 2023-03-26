@@ -13,20 +13,12 @@ import java.util.Objects;
  */
 @Document(collection = "compensation")
 public class Compensation {
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @Id
     private String id;
-
     private String employeeId;
-
-
     private BigDecimal salary;
 
-    //As there is no clear date formatting specifications, just keeping it simple as of now
-
+    //As there is no clear date formatting specifications for the client or db, just keeping it as simple date for now
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate effectiveDate;
 
@@ -36,11 +28,16 @@ public class Compensation {
         this.salary = salary;
         this.effectiveDate = effectiveDate;
     }
+
     public Compensation() {
     }
 
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public BigDecimal getSalary() {

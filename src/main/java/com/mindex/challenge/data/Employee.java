@@ -3,10 +3,10 @@ package com.mindex.challenge.data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 public class Employee {
     @Id
@@ -15,13 +15,30 @@ public class Employee {
     private String lastName;
     private String position;
     private String department;
-
-    // this is to load the reports when needed and not eagerly if we were to have a lot of documents
-    // and avoid being expensive in terms of memory
+    private int numberOfReports;
+    // This is needed to populate details of other referencing employees
     @DBRef(lazy = true)
     private List<Employee> directReports;
 
     public Employee() {
+    }
+
+    public int getNumberOfReports() {
+        return numberOfReports;
+    }
+
+    public void setNumberOfReports(int numberOfReports) {
+        this.numberOfReports = numberOfReports;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("employeeId", this.employeeId);
+        map.put("firstName", this.firstName);
+        map.put("lastName", this.lastName);
+        map.put("position", this.position);
+        map.put("department", this.department);
+        return map;
     }
 
     public String getEmployeeId() {
@@ -65,72 +82,31 @@ public class Employee {
     }
 
     public List<Employee> getDirectReports() {
-        return Optional.ofNullable(this.directReports).orElse(Collections.emptyList());
-    }
-
-    public void setDirectReports(List<Employee> directReports) {
-        this.directReports = directReports;
-    }
-
-    public Employee employeeId(String employeeId) {
-        this.employeeId = employeeId;
-        return this;
-    }
-
-    public Employee firstName(String firstName) {
-        this.firstName = firstName;
-        return this;
-    }
-
-    public Employee lastName(String lastName) {
-        this.lastName = lastName;
-        return this;
-    }
-
-    public Employee position(String position) {
-        this.position = position;
-        return this;
-    }
-
-    public Employee department(String department) {
-        this.department = department;
-        return this;
-    }
-
-    public Employee directReports(List<Employee> directReports) {
-        this.directReports = directReports;
-        return this;
+        return directReports;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof Employee)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof Employee)) return false;
         Employee employee = (Employee) o;
-        return Objects.equals(employeeId, employee.employeeId)
-                && Objects.equals(firstName, employee.firstName)
-                && Objects.equals(lastName, employee.lastName)
-                && Objects.equals(position, employee.position)
-                && Objects.equals(department, employee.department);
+        return getEmployeeId().equals(employee.getEmployeeId()) && getFirstName().equals(employee.getFirstName()) && getLastName().equals(employee.getLastName()) && getPosition().equals(employee.getPosition()) && getDepartment().equals(employee.getDepartment()) && Objects.equals(getDirectReports(), employee.getDirectReports());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(employeeId, firstName, lastName, position, department, directReports);
+        return Objects.hash(getEmployeeId(), getFirstName(), getLastName(), getPosition(), getDepartment(), getDirectReports());
     }
 
     @Override
     public String toString() {
-        return "{" +
-                " employeeId='" + getEmployeeId() + "'" +
-                ", firstName='" + getFirstName() + "'" +
-                ", lastName='" + getLastName() + "'" +
-                ", position='" + getPosition() + "'" +
-                ", department='" + getDepartment() + "'" +
-                ", directReports='" + getDirectReports() + "'" +
-                "}";
+        return "Employee{" +
+                "employeeId='" + employeeId + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", position='" + position + '\'' +
+                ", department='" + department + '\'' +
+                ", directReports=" + directReports +
+                '}';
     }
 }

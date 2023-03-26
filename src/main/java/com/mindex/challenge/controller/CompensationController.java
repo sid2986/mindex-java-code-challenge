@@ -1,8 +1,7 @@
 package com.mindex.challenge.controller;
 
-import com.mindex.challenge.controller.validator.CompensationValidator;
+import com.mindex.challenge.controller.validator.CommonValidator;
 import com.mindex.challenge.data.Compensation;
-import com.mindex.challenge.data.EmployeeCompensationDto;
 import com.mindex.challenge.service.CompensationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,23 +17,22 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.List;
 
 import static com.mindex.challenge.common.utils.CustomDateUtils.getTimezoneFromClient;
 import static com.mindex.challenge.common.utils.CustomDateUtils.setEffectiveDateToUtcFromHeaders;
 
 /**
- * This class aims to provide REST endpoints for Compensation for an employee(s)
+ * This class aims to provide REST endpoints for Compensation of employee(s)
  */
 @RestController
 public class CompensationController {
-
-
     private static final Logger LOG = LoggerFactory.getLogger(CompensationController.class);
-    private final CompensationValidator compensationValidator;
+    private final CommonValidator compensationValidator;
     private CompensationService compensationService;
 
     @Autowired
-    public CompensationController(CompensationService compensationService, CompensationValidator compensationValidator) {
+    public CompensationController(CompensationService compensationService, CommonValidator compensationValidator) {
         this.compensationService = compensationService;
         this.compensationValidator = compensationValidator;
     }
@@ -60,9 +58,9 @@ public class CompensationController {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors().get(0).getDefaultMessage());
         }
-        EmployeeCompensationDto employeeCompensationDto = compensationService.read(id, getTimezoneFromClient(timezone, request));
+        List<Compensation> compensationList= compensationService.read(id, getTimezoneFromClient(timezone, request));
 
-        return ResponseEntity.ok(employeeCompensationDto);
+        return ResponseEntity.ok(compensationList);
     }
 
     /**
@@ -98,8 +96,7 @@ public class CompensationController {
        this can be removed on code review or confirmation of business requirements
        This endpoint enables updating the compensation of a given employee
        Note: As this is not a specified requirement, this update
-
-       */
+     */
 
     /**
      * Update the compensation for a given employee

@@ -3,7 +3,6 @@ package com.mindex.challenge.service.impl;
 import com.mindex.challenge.dao.CompensationRepository;
 import com.mindex.challenge.dao.EmployeeRepository;
 import com.mindex.challenge.data.Compensation;
-import com.mindex.challenge.data.EmployeeCompensationDto;
 import com.mindex.challenge.exception.CompensationNotFoundException;
 import com.mindex.challenge.service.CompensationService;
 import org.slf4j.Logger;
@@ -57,7 +56,7 @@ public class CompensationServiceImpl implements CompensationService {
     }
 
     /**
-     * This method updates the compensation for an employee if it exists
+     * This method updates the compensation for an employee if it exists, otherwise just returns without any action
      *
      * @param compensation to update
      * @return the updated compensation if it exists
@@ -70,8 +69,7 @@ public class CompensationServiceImpl implements CompensationService {
                 .set("effectiveDate", compensation.getEffectiveDate());
         FindAndModifyOptions findAndModifyOptions = new FindAndModifyOptions().returnNew(true).upsert(false);
         Compensation savedCompensation  = mongoTemplate.findAndModify(query, updateDefinition, findAndModifyOptions, Compensation.class);
-        // Compensation savedCompensation = compensationRepository.save(compensation);
-         LOG.debug("savedCompensation: [{}]", savedCompensation);
+        LOG.debug("savedCompensation: [{}]", savedCompensation);
         return savedCompensation;
     }
 
@@ -83,8 +81,7 @@ public class CompensationServiceImpl implements CompensationService {
      * @throws CompensationNotFoundException if the compensation for the employee is not found
      */
     @Override
-    public EmployeeCompensationDto read(String employeeId, String timezone) {
-        EmployeeCompensationDto employeeCompensationDto = new EmployeeCompensationDto();
+    public List<Compensation> read(String employeeId, String timezone) {
 
         List<Compensation> compensationList = compensationRepository.findByEmployeeId(employeeId);
         if (CollectionUtils.isEmpty(compensationList)) {
@@ -92,12 +89,10 @@ public class CompensationServiceImpl implements CompensationService {
             LOG.debug("There are no compensations available for the employee id [{}]", employeeId);
             throw new CompensationNotFoundException("No compensation found for the employee id: " + employeeId);
         } else {
-            //Set the compensations for the employee
-            employeeCompensationDto.setCompensationList(compensationList);
             //Cycle through the effective dates that are in UTC and render in the timezone favorable to the client
             setEffectiveDates(compensationList, ZoneId.of(timezone));
         }
-        return employeeCompensationDto;
+        return compensationList;
     }
 
     /*

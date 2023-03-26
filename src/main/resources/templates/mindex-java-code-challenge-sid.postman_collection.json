@@ -1,0 +1,230 @@
+{
+	"info": {
+		"_postman_id": "259371a9-a1b9-4a6a-aabd-897d651e5fde",
+		"name": "mindex-java-code-challenge",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Employee",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\n    \"employeeId\" : \"\",\n    \"firstName\" : \"Jeffrey\",\n    \"lastName\" : \"Haines\",\n    \"position\" : \"Awesome Developer\",\n    \"department\" : \"Engineering\",\n    \"directReports\" : [\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/employee/",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"employee",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Employee",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/employee/:employeeId",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"employee",
+						":employeeId"
+					],
+					"variable": [
+						{
+							"key": "employeeId",
+							"value": "16a596ae-edd3-4847-99fe-c4518e82c86f"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Employee",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\n    \"employeeId\" : \"{{TEST_UUID}}\",\n    \"firstName\" : \"{{TEST_FIRST_NAME}}\",\n    \"lastName\" : \"{{TEST_LAST_NAME}}\",\n    \"position\" : \"{{TEST_POSITION}}\",\n    \"department\" : \"{{TEST_DEPARTMENT}}\",\n    \"directReports\" : [\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/employee/:employeeId",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"employee",
+						":employeeId"
+					],
+					"variable": [
+						{
+							"key": "employeeId",
+							"value": "16a596ae-edd3-4847-99fe-c4518e82c86f"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Reporting Structure",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/employee/:id/reporting-structure",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"employee",
+						":id",
+						"reporting-structure"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "16a596ae-edd3-4847-99fe-c4518e82c86f",
+							"description": "Employee ID"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Compensation",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "timezone",
+						"value": "America/Chicago",
+						"description": "It's recommended to pass this Optional header for helping to convert your local date into a db favorible UTC format. If not specified, the application will derive the timezone from where the request originated.",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"employeeId\": \"new-employee1\",\n    \"salary\": 5000.00,\n    \"effectiveDate\": \"2023-03-24\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/compensation",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"compensation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Compensation",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/compensation/employee/:id?timezone=America/Chicago",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"compensation",
+						"employee",
+						":id"
+					],
+					"query": [
+						{
+							"key": "timezone",
+							"value": "America/Chicago",
+							"description": "specify the timezon you wish to see the results"
+						}
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "new-employee2",
+							"description": "specify the Employee Id"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Compensation",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "timezone",
+						"value": "America/Chicago",
+						"description": "It's recommended to pass this Optional header for helping to convert your local date into a db favorible UTC format. If not specified, the application will derive the timezone from where the request originated.",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"employeeId\": \"new-employee1\",\n    \"salary\": 5900.00,\n    \"effectiveDate\": \"2023-03-24\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/compensation",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"compensation"
+					]
+				},
+				"description": "Update compensation for an employee"
+			},
+			"response": []
+		}
+	]
+}

@@ -16,16 +16,16 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 @Component
-public class CompensationValidator {
+public class CommonValidator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CompensationValidator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CommonValidator.class);
     private static final String DATE_PATTERN = "yyyy-MM-dd";
 
-    public CompensationValidator() {
+    public CommonValidator() {
     }
 
     /**
-     *  validate the input employee id string
+     *  validate the input id string
      * @param id employee id
      * @param clazz the supplied class type
      * @param errors to store errors
@@ -42,12 +42,17 @@ public class CompensationValidator {
             throw new IllegalArgumentException("employeeId property must be of type String");
         }
         String employeeId = propertyDescriptor.getName();
+        extractedString(id, errors, employeeId);
+    }
+
+    public void extractedString(String id, Errors errors, String employeeId) {
         if (id.toLowerCase().contentEquals(":id") || !StringUtils.hasText(StringUtils.trimAllWhitespace(id))) {
             errors.rejectValue("", employeeId, "Employee Id cannot be null or empty");
         } else if (!id.matches("^[a-zA-Z0-9_-]*$")) {
             errors.rejectValue("", employeeId,"Employee ID should not contain invalid characters");
         }
     }
+
 
     /**
      * Basic validation for compensation

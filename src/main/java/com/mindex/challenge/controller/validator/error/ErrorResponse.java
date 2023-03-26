@@ -1,5 +1,8 @@
 package com.mindex.challenge.controller.validator.error;
 
+/**
+ * Class to hold client error messages
+ */
 public class ErrorResponse {
     private String message;
 
